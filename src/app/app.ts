@@ -23,6 +23,7 @@ export class App {
   protected statusMessage = signal('');
   protected htmlElements = signal<HtmlElement[]>([]);
   private elementCounter = 0;
+  private draggedElementId: string | null = null;
 
   async generatePDF(): Promise<void> {
     try {
@@ -202,5 +203,67 @@ export class App {
     });
 
     return html || '<p style="color: #999; font-style: italic;">No content added yet. Use the buttons above to add elements.</p>';
+  }
+
+  // Drag and Drop Methods
+  onDragStart(event: DragEvent, elementId: string): void {
+    this.draggedElementId = elementId;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/html', elementId);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDrop(event: DragEvent, targetElementId: string): void {
+    event.preventDefault();
+    
+    if (!this.draggedElementId || this.draggedElementId === targetElementId) {
+      return;
+    }
+
+    const elements = this.htmlElements();
+    const draggedIndex = elements.findIndex(el => el.id === this.draggedElementId);
+    const targetIndex = elements.findIndex(el => el.id === targetElementId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      return;
+    }
+
+    // Create new array with reordered elements
+    const newElements = [...elements];
+    const [draggedElement] = newElements.splice(draggedIndex, 1);
+    newElements.splice(targetIndex, 0, draggedElement);
+
+    this.htmlElements.set(newElements);
+    this.draggedElementId = null;
+  }
+
+  moveElementUp(elementId: string): void {
+    const elements = this.htmlElements();
+    const index = elements.findIndex(el => el.id === elementId);
+    
+    if (index > 0) {
+      const newElements = [...elements];
+      [newElements[index - 1], newElements[index]] = [newElements[index], newElements[index - 1]];
+      this.htmlElements.set(newElements);
+    }
+  }
+
+  moveElementDown(elementId: string): void {
+    const elements = this.htmlElements();
+    const index = elements.findIndex(el => el.id === elementId);
+    
+    if (index < elements.length - 1) {
+      const newElements = [...elements];
+      [newElements[index], newElements[index + 1]] = [newElements[index + 1], newElements[index]];
+      this.htmlElements.set(newElements);
+    }
   }
 }

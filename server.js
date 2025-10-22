@@ -6,10 +6,23 @@ const path = require('path');
 console.log('Starting server...');
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS configuration for production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL || false // Set this to your frontend domain in production
+    : ['http://localhost:4200', 'http://localhost:3000'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist/angular-with-prince')));
+}
 
 console.log('Middleware configured...');
 
@@ -311,10 +324,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Production route - serve Angular app for all non-API routes
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/angular-with-prince/index.html'));
+  });
+}
+
 console.log('Routes configured...');
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Keep the process alive and handle errors

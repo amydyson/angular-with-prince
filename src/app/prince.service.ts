@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class PrinceService {
       console.log('Generating PDF with content:', htmlContent.substring(0, 100) + '...');
       
       // Send HTML content to backend for PDF generation
-      const response = await fetch('/api/generate-pdf', {
+      const response = await fetch(`${environment.apiUrl}/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

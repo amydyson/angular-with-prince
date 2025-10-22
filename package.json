@@ -1,12 +1,19 @@
 {
   "name": "angular-with-prince",
   "version": "0.0.0",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "start": "node server.js",
+    "start:dev": "ng serve --proxy-config proxy.conf.json",
     "server": "node server.js",
     "dev": "concurrently \"ng serve --proxy-config proxy.conf.json\" \"node server.js\"",
-    "build": "ng build",
+    "build": "ng build --configuration production",
+    "build:prod": "ng build --configuration production",
+    "heroku-postbuild": "npm run build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

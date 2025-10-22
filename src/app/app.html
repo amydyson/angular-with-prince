@@ -48,9 +48,25 @@
       <!-- Dynamic Content Area -->
       <div #contentArea class="dynamic-content" style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; min-height: 300px;">
         @for (element of htmlElements(); track element.id) {
-          <div class="element-wrapper" style="position: relative; margin-bottom: 1rem; border: 1px dashed #e9ecef; padding: 0.5rem; border-radius: 4px;">
-            <!-- Delete button for each element -->
-            <button (click)="removeElement(element.id)" style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+          <div 
+            class="element-wrapper" 
+            style="position: relative; margin-bottom: 1rem; border: 1px dashed #e9ecef; padding: 0.5rem 0.5rem 0.5rem 2.5rem; border-radius: 4px; cursor: move;"
+            draggable="true"
+            (dragstart)="onDragStart($event, element.id)"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event, element.id)">
+            
+            <!-- Drag handle -->
+            <div style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #6c757d; cursor: grab; font-size: 14px; line-height: 1;">
+              ⋮⋮
+            </div>
+            
+            <!-- Control buttons -->
+            <div style="position: absolute; top: -8px; right: -8px; display: flex; gap: 2px;">
+              <button (click)="moveElementUp(element.id)" style="background: #28a745; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">↑</button>
+              <button (click)="moveElementDown(element.id)" style="background: #007bff; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">↓</button>
+              <button (click)="removeElement(element.id)" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+            </div>
             
             @switch (element.type) {
               @case ('heading') {
