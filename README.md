@@ -1,59 +1,67 @@
-# AngularWithPrince
+# Angular with PrinceXML
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.6.
+This project demonstrates how to create PDF documents from HTML using PrinceXML in an Angular application.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- 8.5" x 11" page layout with proper margins
+- Print-optimized CSS with @page rules
+- Professional document formatting
+- Angular service for PDF generation
+- Express server for PrinceXML conversion
 
+## Prerequisites
+
+1. **Node.js** (v18 or later)
+2. **PrinceXML** installed on your system
+   - Download from: https://www.princexml.com/download/
+   - Follow installation instructions for your OS
+
+## Installation
+
+1. Install dependencies:
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+2. Install additional server dependencies:
 ```bash
-ng generate component component-name
+npm install express cors concurrently
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Running the Application
 
+### Option 1: Run Angular and Server together
 ```bash
-ng generate --help
+npm run dev
 ```
 
-## Building
-
-To build the project run:
-
+### Option 2: Run separately
 ```bash
-ng build
+# Terminal 1: Angular dev server
+npm start
+
+# Terminal 2: Express server for PDF conversion
+npm run server
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The Angular app will be available at `http://localhost:4200`
+The PDF conversion API will be available at `http://localhost:3001`
 
-## Running unit tests
+## Usage
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. Open the application in your browser
+2. Review the sample document in the left column
+3. Use the controls in the right column:
+   - **Generate PDF**: Creates HTML optimized for PrinceXML and sends it to the server for conversion
+   - **Print Preview**: Shows how the document will look when printed
 
-```bash
-ng test
-```
+## Troubleshooting
 
-## Running end-to-end tests
+### PrinceXML Not Found
+- Ensure PrinceXML is properly installed and in your system PATH
+- Check that the `prince` command works from the command line
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### CORS Issues
+- The server is configured to allow requests from `http://localhost:4200`
+- Update the CORS configuration in `server.js` for production
