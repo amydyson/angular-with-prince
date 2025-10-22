@@ -1,22 +1,54 @@
-﻿<div style="display: flex; min-height: 100vh; gap: 2rem; padding: 2rem;">
-  <div style="flex: 1; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef;">
-    <h1 style="color: #333; margin-top: 0;">Sample HTML Content</h1>
-    <p style="color: #666; line-height: 1.6;">This is the left column with some sample HTML content.</p>
-    
-    <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
-      <h3 style="margin-top: 0; color: #495057;">Sample Card 1</h3>
-      <p style="color: #666;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-    </div>
-    
-    <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
-      <h3 style="margin-top: 0; color: #495057;">Sample Card 2</h3>
-      <p style="color: #666;">Ut enim ad minim veniam, quis nostrud exercitation.</p>
-    </div>
+﻿<div style="padding: 2rem;">
+  <!-- PrinceXML Control Buttons -->
+  <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <h2 style="margin: 0; color: #333; font-size: 1.2rem;">PrinceXML Controls</h2>
+    <button 
+      (click)="previewPDF()" 
+      [disabled]="isGenerating()"
+      style="background: #007bff; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; opacity: 1;"
+      [style.opacity]="isGenerating() ? '0.6' : '1'"
+      [style.cursor]="isGenerating() ? 'not-allowed' : 'pointer'">
+      {{isGenerating() ? 'Generating...' : 'Preview PDF'}}
+    </button>
+    <button 
+      (click)="generatePDF()" 
+      [disabled]="isGenerating()"
+      style="background: #28a745; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; opacity: 1;"
+      [style.opacity]="isGenerating() ? '0.6' : '1'"
+      [style.cursor]="isGenerating() ? 'not-allowed' : 'pointer'">
+      {{isGenerating() ? 'Generating...' : 'Download PDF'}}
+    </button>
+    @if (statusMessage()) {
+      <div style="padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.9rem; margin-left: auto;"
+           [style.background]="statusMessage().includes('Error') ? '#f8d7da' : '#d4edda'"
+           [style.color]="statusMessage().includes('Error') ? '#721c24' : '#155724'"
+           [style.border]="statusMessage().includes('Error') ? '1px solid #f5c6cb' : '1px solid #c3e6cb'">
+        {{statusMessage()}}
+      </div>
+    }
   </div>
-  
-  <div style="flex: 1; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef; display: flex; align-items: center; justify-content: center; text-align: center;">
-    <div style="font-size: 1.25rem; color: #6c757d; font-weight: 500;">
-      Placeholder for PDF
+
+  <!-- Two Column Layout -->
+  <div style="display: flex; min-height: 60vh; gap: 2rem;">
+    <div class="content-column" style="flex: 1; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef;">
+      <h1 style="color: #333; margin-top: 0;">Sample HTML Content</h1>
+      <p style="color: #666; line-height: 1.6;">This is the left column with some sample HTML content.</p>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
+        <h3 style="margin-top: 0; color: #495057;">Sample Card 1</h3>
+        <p style="color: #666;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </div>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
+        <h3 style="margin-top: 0; color: #495057;">Sample Card 2</h3>
+        <p style="color: #666;">Ut enim ad minim veniam, quis nostrud exercitation.</p>
+      </div>
+    </div>
+    
+    <div class="pdf-preview" style="flex: 1; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef; display: flex; align-items: center; justify-content: center; text-align: center;">
+      <div style="font-size: 1.25rem; color: #6c757d; font-weight: 500;">
+        Placeholder for PDF
+      </div>
     </div>
   </div>
 </div>
