@@ -30,18 +30,58 @@
 
   <!-- Two Column Layout -->
   <div style="display: flex; min-height: 70vh; gap: 2rem;">
-    <div class="content-column" style="flex: 0 0 350px; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef;">
-      <h1 style="color: #333; margin-top: 0;">Sample HTML Content</h1>
-      <p style="color: #666; line-height: 1.6;">This is the left column with some sample HTML content.</p>
+    <div class="content-column" style="flex: 0 0 350px; background: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef; overflow-y: auto; max-height: 70vh;">
+      <h1 style="color: #333; margin-top: 0; font-size: 1.5rem;">HTML Builder</h1>
       
-      <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
-        <h3 style="margin-top: 0; color: #495057;">Sample Card 1</h3>
-        <p style="color: #666;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <!-- Add Element Controls -->
+      <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
+        <h3 style="margin-top: 0; color: #495057; font-size: 1rem;">Add Elements</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          <button (click)="addHeading()" style="background: #007bff; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">+ Heading</button>
+          <button (click)="addParagraph()" style="background: #28a745; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">+ Paragraph</button>
+          <button (click)="addCard()" style="background: #17a2b8; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">+ Card</button>
+          <button (click)="addList()" style="background: #ffc107; color: #212529; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">+ List</button>
+          <button (click)="clearAll()" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; font-size: 0.8rem;">Clear All</button>
+        </div>
       </div>
-      
-      <div style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 1rem;">
-        <h3 style="margin-top: 0; color: #495057;">Sample Card 2</h3>
-        <p style="color: #666;">Ut enim ad minim veniam, quis nostrud exercitation.</p>
+
+      <!-- Dynamic Content Area -->
+      <div #contentArea class="dynamic-content" style="background: white; padding: 1.5rem; border-radius: 6px; border: 1px solid #dee2e6; min-height: 300px;">
+        @for (element of htmlElements(); track element.id) {
+          <div class="element-wrapper" style="position: relative; margin-bottom: 1rem; border: 1px dashed #e9ecef; padding: 0.5rem; border-radius: 4px;">
+            <!-- Delete button for each element -->
+            <button (click)="removeElement(element.id)" style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+            
+            @switch (element.type) {
+              @case ('heading') {
+                <div contenteditable="true" (blur)="updateElement(element.id, $event)" style="outline: none; padding: 0.5rem; border-radius: 4px;" [innerHTML]="element.content"></div>
+              }
+              @case ('paragraph') {
+                <p contenteditable="true" (blur)="updateElement(element.id, $event)" style="outline: none; padding: 0.5rem; border-radius: 4px; margin: 0;" [innerHTML]="element.content"></p>
+              }
+              @case ('card') {
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; border: 1px solid #dee2e6;">
+                  <h4 contenteditable="true" (blur)="updateElementPart(element.id, 'title', $event)" style="margin-top: 0; margin-bottom: 0.5rem; outline: none; padding: 0.25rem;" [innerHTML]="element.title || 'Card Title'"></h4>
+                  <p contenteditable="true" (blur)="updateElementPart(element.id, 'content', $event)" style="margin: 0; outline: none; padding: 0.25rem;" [innerHTML]="element.content || 'Card content goes here...'"></p>
+                </div>
+              }
+              @case ('list') {
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                  @for (item of element.items; track $index) {
+                    <li contenteditable="true" (blur)="updateListItem(element.id, $index, $event)" style="outline: none; padding: 0.25rem; margin-bottom: 0.25rem;" [innerHTML]="item"></li>
+                  }
+                  <li><button (click)="addListItem(element.id)" style="background: #6c757d; color: white; border: none; padding: 0.2rem 0.5rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">+ Add Item</button></li>
+                </ul>
+              }
+            }
+          </div>
+        }
+        
+        @if (htmlElements().length === 0) {
+          <div style="text-align: center; color: #6c757d; font-style: italic; padding: 2rem;">
+            Click the buttons above to start building your HTML content
+          </div>
+        }
       </div>
     </div>
     
