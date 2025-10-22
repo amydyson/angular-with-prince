@@ -60,7 +60,7 @@ export class App {
         // Update the right column with PDF preview
         const rightColumn = document.querySelector('.pdf-preview');
         if (rightColumn) {
-          rightColumn.innerHTML = `<iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none; border-radius: 6px;"></iframe>`;
+          rightColumn.innerHTML = `<iframe src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" style="width: 100%; height: 100%; border: none; border-radius: 6px;"></iframe>`;
           this.statusMessage.set('PDF preview loaded successfully!');
           
           // Clear status after 3 seconds
