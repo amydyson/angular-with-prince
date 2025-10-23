@@ -13,6 +13,7 @@
     "dev": "concurrently \"ng serve --proxy-config proxy.conf.json\" \"node server.js\"",
     "build": "ng build --configuration production",
     "build:prod": "ng build --configuration production",
+    "heroku-prebuild": "node install-prince.js",
     "heroku-postbuild": "npm run build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

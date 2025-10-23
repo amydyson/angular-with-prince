@@ -1,0 +1,25 @@
+{
+  "name": "Angular with PrinceXML Backend",
+  "description": "Express.js backend with PrinceXML for PDF generation",
+  "repository": "https://github.com/amydyson/angular-with-prince",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "princexml", "pdf", "angular"],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-apt"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "FRONTEND_URL": {
+      "description": "Your AWS Amplify frontend URL for CORS",
+      "value": "https://your-amplify-app.amplifyapp.com"
+    }
+  }
+}

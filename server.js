@@ -44,7 +44,18 @@ app.post('/api/generate-pdf', async (req, res) => {
       const execAsync = promisify(exec);
       
       // Try to run prince --version to check if binary exists
-      await execAsync('prince --version');
+      // On Heroku, check the vendor directory first
+      let princeCommand = 'prince';
+      if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
+        // We're on Heroku
+        const herokuPrincePath = '/app/vendor/prince/bin/prince';
+        if (fs.existsSync(herokuPrincePath)) {
+          princeCommand = herokuPrincePath;
+          console.log('Using Heroku PrinceXML at:', herokuPrincePath);
+        }
+      }
+      
+      await execAsync(`${princeCommand} --version`);
       princeAvailable = true;
       console.log('PrinceXML binary found and available');
     } catch (error) {
@@ -262,9 +273,21 @@ app.post('/api/generate-pdf', async (req, res) => {
         // Get the full path to prince executable
         let princePath;
         try {
-          const result = await execAsync(process.platform === 'win32' ? 'where prince' : 'which prince');
-          princePath = result.stdout.trim().split('\n')[0];
-          console.log('Found Prince binary at:', princePath);
+          // On Heroku, use the vendor directory path
+          if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
+            const herokuPrincePath = '/app/vendor/prince/bin/prince';
+            if (fs.existsSync(herokuPrincePath)) {
+              princePath = herokuPrincePath;
+              console.log('Using Heroku PrinceXML at:', princePath);
+            } else {
+              throw new Error('Heroku PrinceXML not found');
+            }
+          } else {
+            // Local development or other environments
+            const result = await execAsync(process.platform === 'win32' ? 'where prince' : 'which prince');
+            princePath = result.stdout.trim().split('\n')[0];
+            console.log('Found Prince binary at:', princePath);
+          }
         } catch (pathError) {
           console.log('Could not find Prince binary path, using default');
           princePath = 'prince';
@@ -283,7 +306,16 @@ app.post('/api/generate-pdf', async (req, res) => {
         const { promisify } = require('util');
         const execAsync = promisify(exec);
         
-        const command = `prince "${inputFile}" -o "${outputFile}"`;
+        // Use the same logic for determining prince path
+        let fallbackPrincePath = 'prince';
+        if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
+          const herokuPrincePath = '/app/vendor/prince/bin/prince';
+          if (fs.existsSync(herokuPrincePath)) {
+            fallbackPrincePath = herokuPrincePath;
+          }
+        }
+        
+        const command = `"${fallbackPrincePath}" "${inputFile}" -o "${outputFile}"`;
         console.log('Executing command:', command);
         await execAsync(command);
       }

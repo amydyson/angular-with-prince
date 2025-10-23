@@ -1,0 +1,8 @@
+# Dependencies for PrinceXML
+libgif7
+libxft2
+libfontconfig1
+libfreetype6
+libjpeg62-turbo
+libpng16-16
+libtiff5
