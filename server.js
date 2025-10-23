@@ -5,6 +5,54 @@ const path = require('path');
 
 console.log('Starting server...');
 
+// Runtime Prince installation function
+async function installPrinceRuntime() {
+  const { exec } = require('child_process');
+  const { promisify } = require('util');
+  const execAsync = promisify(exec);
+  
+  console.log('Installing PrinceXML at runtime...');
+  
+  const princeDir = '/tmp/prince';
+  if (!fs.existsSync(princeDir)) {
+    fs.mkdirSync(princeDir, { recursive: true });
+  }
+  
+  const downloadUrl = 'https://www.princexml.com/download/prince-15.1-linux-generic-x86_64.tar.gz';
+  const tarFile = '/tmp/prince.tar.gz';
+  const extractDir = '/tmp/prince-extract';
+  
+  // Download and extract
+  await execAsync(`wget -O ${tarFile} ${downloadUrl}`);
+  
+  if (!fs.existsSync(extractDir)) {
+    fs.mkdirSync(extractDir, { recursive: true });
+  }
+  
+  await execAsync(`tar -xzf ${tarFile} -C ${extractDir}`);
+  
+  const extractedContents = fs.readdirSync(extractDir);
+  const princeExtractedDir = extractedContents.find(name => name.startsWith('prince-'));
+  
+  if (!princeExtractedDir) {
+    throw new Error('Could not find extracted PrinceXML directory');
+  }
+  
+  const fullExtractedPath = path.join(extractDir, princeExtractedDir);
+  await execAsync(`cp -r ${fullExtractedPath}/* ${princeDir}/`);
+  
+  const princeBinary = path.join(princeDir, 'lib', 'prince', 'bin', 'prince');
+  if (fs.existsSync(princeBinary)) {
+    await execAsync(`chmod +x ${princeBinary}`);
+    console.log('Runtime Prince installation completed');
+  } else {
+    throw new Error('Prince binary not found after extraction');
+  }
+  
+  // Clean up
+  await execAsync(`rm -rf ${tarFile} ${extractDir}`);
+}
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -42,14 +90,36 @@ app.post('/api/generate-pdf', async (req, res) => {
       const execAsync = promisify(exec);
       
       // Try to run prince --version to check if binary exists
-      // On Heroku, check the vendor directory first
+      // On Heroku, check multiple possible locations
       let princeCommand = 'prince';
       if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
-        // We're on Heroku - the binary is in lib/prince/bin/
-        const herokuPrincePath = '/app/vendor/prince/lib/prince/bin/prince';
-        if (fs.existsSync(herokuPrincePath)) {
-          princeCommand = herokuPrincePath;
-          console.log('Using Heroku PrinceXML at:', herokuPrincePath);
+        // We're on Heroku - try multiple locations
+        const possiblePaths = [
+          '/app/vendor/prince/lib/prince/bin/prince',
+          '/tmp/prince/lib/prince/bin/prince'
+        ];
+        
+        for (const path of possiblePaths) {
+          if (fs.existsSync(path)) {
+            princeCommand = path;
+            console.log('Using Heroku PrinceXML at:', path);
+            break;
+          }
+        }
+        
+        // If not found, try to install it at runtime
+        if (princeCommand === 'prince' && !fs.existsSync('/tmp/prince')) {
+          console.log('Prince not found, attempting runtime installation...');
+          try {
+            await installPrinceRuntime();
+            const runtimePath = '/tmp/prince/lib/prince/bin/prince';
+            if (fs.existsSync(runtimePath)) {
+              princeCommand = runtimePath;
+              console.log('Runtime Prince installation successful');
+            }
+          } catch (installError) {
+            console.log('Runtime Prince installation failed:', installError.message);
+          }
         }
       }
       
@@ -271,13 +341,22 @@ app.post('/api/generate-pdf', async (req, res) => {
         // Get the full path to prince executable
         let princePath;
         try {
-          // On Heroku, use the vendor directory path (correct location)
+          // On Heroku, check multiple possible locations
           if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
-            const herokuPrincePath = '/app/vendor/prince/lib/prince/bin/prince';
-            if (fs.existsSync(herokuPrincePath)) {
-              princePath = herokuPrincePath;
-              console.log('Using Heroku PrinceXML at:', princePath);
-            } else {
+            const possiblePaths = [
+              '/app/vendor/prince/lib/prince/bin/prince',
+              '/tmp/prince/lib/prince/bin/prince'
+            ];
+            
+            for (const path of possiblePaths) {
+              if (fs.existsSync(path)) {
+                princePath = path;
+                console.log('Using Heroku PrinceXML at:', path);
+                break;
+              }
+            }
+            
+            if (!princePath) {
               throw new Error('Heroku PrinceXML not found');
             }
           } else {
