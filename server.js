@@ -59,13 +59,19 @@ const port = process.env.PORT || 3001;
 // CORS configuration for production
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || false // Set this to your frontend domain in production
+    ? [process.env.FRONTEND_URL, 'https://main.d26ngn9jlgdz4r.amplifyapp.com'] // Allow both env var and hardcoded URL
     : ['http://localhost:4200', 'http://localhost:3000'],
   credentials: true
 };
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+
+// Add request logging for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.get('Origin')} - User-Agent: ${req.get('User-Agent')?.substring(0, 50)}`);
+  next();
+});
 
 // Note: Static files served by AWS Amplify, not this backend
 // Removed express.static to prevent path-to-regexp errors on Heroku
