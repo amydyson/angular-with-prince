@@ -16,6 +16,12 @@ async function installPrinceXML() {
     
     if (!fs.existsSync(vendorDir)) {
       fs.mkdirSync(vendorDir, { recursive: true });
+      console.log('Created vendor directory');
+    }
+    
+    if (!fs.existsSync(princeDir)) {
+      fs.mkdirSync(princeDir, { recursive: true });
+      console.log('Created prince directory');
     }
     
     // Download and extract PrinceXML
@@ -46,7 +52,8 @@ async function installPrinceXML() {
     
   } catch (error) {
     console.error('Failed to install PrinceXML:', error.message);
-    process.exit(1);
+    console.log('Continuing build without PrinceXML - PDF generation will show helpful error messages');
+    // Don't exit with error code - let the build continue
   }
 }
 
