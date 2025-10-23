@@ -59,7 +59,7 @@ const port = process.env.PORT || 3001;
 // CORS configuration for production
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL, 'https://main.d26ngn9jlgdz4r.amplifyapp.com'] // Allow both env var and hardcoded URL
+    ? [process.env.FRONTEND_URL, 'https://main.d26ngn9jlgdz4r.amplifyapp.com', 'https://main.d3kyx445esdj4p.amplifyapp.com'] // Allow both env var and hardcoded URLs
     : ['http://localhost:4200', 'http://localhost:3000'],
   credentials: true
 };
