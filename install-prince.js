@@ -27,28 +27,56 @@ async function installPrinceXML() {
     // Download and extract PrinceXML
     const downloadUrl = 'https://www.princexml.com/download/prince-15.1-linux-generic-x86_64.tar.gz';
     const tarFile = '/tmp/prince.tar.gz';
+    const extractDir = '/tmp/prince-extract';
     
     console.log('Downloading PrinceXML...');
     await execAsync(`wget -O ${tarFile} ${downloadUrl}`);
     
+    console.log('Creating extraction directory...');
+    if (!fs.existsSync(extractDir)) {
+      fs.mkdirSync(extractDir, { recursive: true });
+    }
+    
     console.log('Extracting PrinceXML...');
-    await execAsync(`tar -xzf ${tarFile} -C /tmp`);
+    await execAsync(`tar -xzf ${tarFile} -C ${extractDir}`);
+    
+    // Find the extracted directory (it should be prince-15.1-linux-generic-x86_64)
+    const extractedContents = fs.readdirSync(extractDir);
+    const princeExtractedDir = extractedContents.find(name => name.startsWith('prince-'));
+    
+    if (!princeExtractedDir) {
+      throw new Error('Could not find extracted PrinceXML directory');
+    }
+    
+    const fullExtractedPath = path.join(extractDir, princeExtractedDir);
+    console.log('Found extracted PrinceXML at:', fullExtractedPath);
     
     console.log('Installing PrinceXML...');
-    await execAsync(`cp -r /tmp/prince-15.1-linux-generic-x86_64/* ${princeDir}/`);
+    await execAsync(`cp -r ${fullExtractedPath}/* ${princeDir}/`);
     
     // Make prince executable
-    await execAsync(`chmod +x ${princeDir}/bin/prince`);
-    
-    console.log('PrinceXML installation completed!');
-    
-    // Test installation
-    try {
-      const result = await execAsync(`${princeDir}/bin/prince --version`);
-      console.log('Prince version:', result.stdout.trim());
-    } catch (testError) {
-      console.warn('Could not test Prince installation:', testError.message);
+    const princeBinary = path.join(princeDir, 'bin', 'prince');
+    if (fs.existsSync(princeBinary)) {
+      await execAsync(`chmod +x ${princeBinary}`);
+      console.log('Made prince binary executable');
+      
+      // Test installation
+      try {
+        const result = await execAsync(`${princeBinary} --version`);
+        console.log('PrinceXML installation successful!');
+        console.log('Prince version:', result.stdout.trim());
+      } catch (testError) {
+        console.warn('Could not test Prince installation, but binary exists');
+      }
+    } else {
+      throw new Error(`Prince binary not found at ${princeBinary}`);
     }
+    
+    // Clean up
+    console.log('Cleaning up temporary files...');
+    await execAsync(`rm -rf ${tarFile} ${extractDir}`);
+    
+    console.log('PrinceXML installation completed successfully!');
     
   } catch (error) {
     console.error('Failed to install PrinceXML:', error.message);
