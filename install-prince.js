@@ -54,8 +54,8 @@ async function installPrinceXML() {
     console.log('Installing PrinceXML...');
     await execAsync(`cp -r ${fullExtractedPath}/* ${princeDir}/`);
     
-    // Make prince executable
-    const princeBinary = path.join(princeDir, 'bin', 'prince');
+    // Make prince executable - the binary is actually in lib/prince/bin/
+    const princeBinary = path.join(princeDir, 'lib', 'prince', 'bin', 'prince');
     if (fs.existsSync(princeBinary)) {
       await execAsync(`chmod +x ${princeBinary}`);
       console.log('Made prince binary executable');

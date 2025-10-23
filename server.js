@@ -45,8 +45,8 @@ app.post('/api/generate-pdf', async (req, res) => {
       // On Heroku, check the vendor directory first
       let princeCommand = 'prince';
       if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
-        // We're on Heroku
-        const herokuPrincePath = '/app/vendor/prince/bin/prince';
+        // We're on Heroku - the binary is in lib/prince/bin/
+        const herokuPrincePath = '/app/vendor/prince/lib/prince/bin/prince';
         if (fs.existsSync(herokuPrincePath)) {
           princeCommand = herokuPrincePath;
           console.log('Using Heroku PrinceXML at:', herokuPrincePath);
@@ -271,9 +271,9 @@ app.post('/api/generate-pdf', async (req, res) => {
         // Get the full path to prince executable
         let princePath;
         try {
-          // On Heroku, use the vendor directory path
+          // On Heroku, use the vendor directory path (correct location)
           if (process.env.NODE_ENV === 'production' && process.env.DYNO) {
-            const herokuPrincePath = '/app/vendor/prince/bin/prince';
+            const herokuPrincePath = '/app/vendor/prince/lib/prince/bin/prince';
             if (fs.existsSync(herokuPrincePath)) {
               princePath = herokuPrincePath;
               console.log('Using Heroku PrinceXML at:', princePath);
