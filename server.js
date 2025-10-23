@@ -19,10 +19,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
-}
+// Note: Static files served by AWS Amplify, not this backend
+// Removed express.static to prevent path-to-regexp errors on Heroku
 
 console.log('Middleware configured...');
 
@@ -356,12 +354,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Production route - serve Angular app for all non-API routes
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/index.html'));
-  });
-}
+// Note: Angular frontend is served by AWS Amplify, not from this backend
 
 console.log('Routes configured...');
 
