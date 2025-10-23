@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3001/api'
+  apiUrl: 'https://angular-with-prince-backend-5de1af298c07.herokuapp.com/api'
 };

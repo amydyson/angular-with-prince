@@ -1,7 +1,7 @@
 {
   "/api/*": {
-    "target": "http://localhost:3001",
-    "secure": false,
+    "target": "https://angular-with-prince-backend-5de1af298c07.herokuapp.com",
+    "secure": true,
     "changeOrigin": true
   }
 }
